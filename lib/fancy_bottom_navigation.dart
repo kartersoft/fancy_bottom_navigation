@@ -5,27 +5,41 @@ import 'package:fancy_bottom_navigation/paint/half_clipper.dart';
 import 'package:fancy_bottom_navigation/paint/half_painter.dart';
 import 'package:flutter/material.dart';
 
-class FancyBottomNavigation extends StatefulWidget {
-  FancyBottomNavigation(
-      {@required this.tabs,
-      @required this.onTabChangedListener,
-      this.key,
-      this.initialSelection = 0,
-      this.circleSize = 60,
-      this.arcHeight = 70,
-      this.arcWidth = 90,
-      this.circleOutline = 10,
-      this.shadowAllowance = 20,
-      this.barHeight = 60,
-      this.circleColor,
-      this.activeIconColor,
-      this.inactiveIconColor,
-      this.textColor,
-      this.barBackgroundColor})
-      : assert(onTabChangedListener != null),
-        assert(tabs != null);
+class TabData {
+  TabData({
+    @required this.iconData, 
+    @required this.title, 
+    this.onClick
+  });
 
-  final Function(int position) onTabChangedListener;
+  final UniqueKey key = UniqueKey();
+
+  IconData iconData;
+  String title;
+  Function onClick;
+}
+
+class FancyBottomNavigation extends StatefulWidget {
+  FancyBottomNavigation({
+    @required this.tabs,
+    @required this.onTabChanged,
+    this.key,
+    this.initialSelection = 0,
+    this.circleSize = 60,
+    this.arcHeight = 70,
+    this.arcWidth = 90,
+    this.circleOutline = 10,
+    this.shadowAllowance = 20,
+    this.barHeight = 60,
+    this.circleColor,
+    this.activeIconColor,
+    this.inactiveIconColor,
+    this.textColor,
+    this.barBackgroundColor
+  }): assert(onTabChanged != null),
+      assert(tabs != null);
+
+  final ValueChanged<int> onTabChanged;
   final Color circleColor;
   final Color activeIconColor;
   final Color inactiveIconColor;
@@ -46,50 +60,48 @@ class FancyBottomNavigation extends StatefulWidget {
   FancyBottomNavigationState createState() => FancyBottomNavigationState();
 }
 
-class FancyBottomNavigationState extends State<FancyBottomNavigation>
-    with TickerProviderStateMixin, RouteAware {
-  IconData nextIcon = Icons.search;
-  IconData activeIcon = Icons.search;
-
-  int currentSelected = 0;
+class FancyBottomNavigationState extends State<FancyBottomNavigation> with TickerProviderStateMixin, RouteAware {
+  IconData _nextIcon = Icons.search;
+  IconData _activeIcon = Icons.search;
+  int _currentSelected = 0;
+  Color _circleColor;
+  Color _activeIconColor;
+  Color _inactiveIconColor;
+  Color _barBackgroundColor;
+  Color _textColor;
   double _circleAlignX = 0;
   double _circleIconAlpha = 1;
-
-  Color circleColor;
-  Color activeIconColor;
-  Color inactiveIconColor;
-  Color barBackgroundColor;
-  Color textColor;
+  bool _selectable = true;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    activeIcon = widget.tabs[currentSelected].iconData;
+    _activeIcon = widget.tabs[_currentSelected].iconData;
 
-    circleColor = (widget.circleColor == null)
+    _circleColor = (widget.circleColor == null)
         ? (Theme.of(context).brightness == Brightness.dark)
             ? Colors.white
             : Theme.of(context).primaryColor
         : widget.circleColor;
 
-    activeIconColor = (widget.activeIconColor == null)
+    _activeIconColor = (widget.activeIconColor == null)
         ? (Theme.of(context).brightness == Brightness.dark)
             ? Colors.black54
             : Colors.white
         : widget.activeIconColor;
 
-    barBackgroundColor = (widget.barBackgroundColor == null)
+    _barBackgroundColor = (widget.barBackgroundColor == null)
         ? (Theme.of(context).brightness == Brightness.dark)
             ? Color(0xFF212121)
             : Colors.white
         : widget.barBackgroundColor;
-    textColor = (widget.textColor == null)
+    _textColor = (widget.textColor == null)
         ? (Theme.of(context).brightness == Brightness.dark)
             ? Colors.white
             : Colors.black54
         : widget.textColor;
-    inactiveIconColor = (widget.inactiveIconColor == null)
+    _inactiveIconColor = (widget.inactiveIconColor == null)
         ? (Theme.of(context).brightness == Brightness.dark)
             ? Colors.white
             : Theme.of(context).primaryColor
@@ -102,56 +114,32 @@ class FancyBottomNavigationState extends State<FancyBottomNavigation>
     _setSelected(widget.tabs[widget.initialSelection].key);
   }
 
-  _setSelected(UniqueKey key) {
-    int selected = widget.tabs.indexWhere((tabData) => tabData.key == key);
-
-    if (mounted) {
-      setState(() {
-        currentSelected = selected;
-        _circleAlignX = -1 + (2 / (widget.tabs.length - 1) * selected);
-        nextIcon = widget.tabs[selected].iconData;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Stack(
-      overflow: Overflow.visible,
       alignment: Alignment.bottomCenter,
+      overflow: Overflow.visible,
       children: <Widget>[
         Container(
           height: widget.barHeight,
-          decoration: BoxDecoration(color: barBackgroundColor, boxShadow: [
-            BoxShadow(
-                color: Colors.black12, offset: Offset(0, -1), blurRadius: 8)
-          ]),
+          decoration: BoxDecoration(
+            color: _barBackgroundColor, 
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12, 
+                offset: Offset(0, -1),
+                blurRadius: 8
+              )
+            ]
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: widget.tabs
-                .map((t) => TabItem(
-                    uniqueKey: t.key,
-                    selected: t.key == widget.tabs[currentSelected].key,
-                    iconData: t.iconData,
-                    title: t.title,
-                    iconColor: inactiveIconColor,
-                    textColor: textColor,
-                    callbackFunction: (uniqueKey) {
-                      int selected = widget.tabs
-                          .indexWhere((tabData) => tabData.key == uniqueKey);
-                      widget.onTabChangedListener(selected);
-                      _setSelected(uniqueKey);
-                      _initAnimationAndStart(_circleAlignX, 1);
-                    }))
-                .toList(),
+            children: widget.tabs.map(_buildTabItem).toList(),
           ),
         ),
         Positioned.fill(
-          top: -(widget.circleSize +
-                  widget.circleOutline +
-                  widget.shadowAllowance) /
-              2,
+          top: -(widget.circleSize + widget.circleOutline + widget.shadowAllowance) / 2,
           child: Container(
             child: AnimatedAlign(
               duration: Duration(milliseconds: ANIM_DURATION),
@@ -162,58 +150,56 @@ class FancyBottomNavigationState extends State<FancyBottomNavigation>
                 child: FractionallySizedBox(
                   widthFactor: 1 / widget.tabs.length,
                   child: GestureDetector(
-                    onTap: widget.tabs[currentSelected].onclick,
+                    onTap: widget.tabs[_currentSelected].onClick,
                     child: Stack(
                       alignment: Alignment.center,
                       children: <Widget>[
                         SizedBox(
-                          height: widget.circleSize +
-                              widget.circleOutline +
-                              widget.shadowAllowance,
-                          width: widget.circleSize +
-                              widget.circleOutline +
-                              widget.shadowAllowance,
+                          height: widget.circleSize + widget.circleOutline + widget.shadowAllowance,
+                          width: widget.circleSize + widget.circleOutline + widget.shadowAllowance,
                           child: ClipRect(
-                              clipper: HalfClipper(),
-                              child: Container(
-                                child: Center(
-                                  child: Container(
-                                      width: widget.circleSize +
-                                          widget.circleOutline,
-                                      height: widget.circleSize +
-                                          widget.circleOutline,
-                                      decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                                color: Colors.black12,
-                                                blurRadius: 8)
-                                          ])),
+                            clipper: HalfClipper(),
+                            child: Container(
+                              child: Center(
+                                child: Container(
+                                  width: widget.circleSize + widget.circleOutline,
+                                  height: widget.circleSize + widget.circleOutline,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black12,
+                                        blurRadius: 8
+                                      )
+                                    ]
+                                  )
                                 ),
-                              )),
+                              ),
+                            )
+                          ),
                         ),
                         SizedBox(
-                            height: widget.arcHeight,
-                            width: widget.arcWidth,
-                            child: CustomPaint(
-                              painter: HalfPainter(barBackgroundColor),
-                            )),
+                          height: widget.arcHeight,
+                          width: widget.arcWidth,
+                          child: CustomPaint(painter: HalfPainter(_barBackgroundColor))
+                        ),
                         SizedBox(
                           height: widget.circleSize,
                           width: widget.circleSize,
                           child: Container(
                             decoration: BoxDecoration(
-                                shape: BoxShape.circle, color: circleColor),
+                              shape: BoxShape.circle, 
+                              color: _circleColor
+                            ),
                             child: Padding(
                               padding: const EdgeInsets.all(0.0),
                               child: AnimatedOpacity(
-                                duration:
-                                    Duration(milliseconds: ANIM_DURATION ~/ 5),
+                                duration: Duration(milliseconds: ANIM_DURATION ~/ 5),
                                 opacity: _circleIconAlpha,
                                 child: Icon(
-                                  activeIcon,
-                                  color: activeIconColor,
+                                  _activeIcon,
+                                  color: _activeIconColor,
                                 ),
                               ),
                             ),
@@ -231,38 +217,55 @@ class FancyBottomNavigationState extends State<FancyBottomNavigation>
     );
   }
 
-  _initAnimationAndStart(double from, double to) {
+  Widget _buildTabItem(TabData data) {
+    return TabItem(
+      key: data.key,
+      selected: data.key == widget.tabs[_currentSelected].key,
+      iconData: data.iconData,
+      title: data.title,
+      iconColor: _inactiveIconColor,
+      textColor: _textColor,
+      onPressed: _handleTabItemPressed
+    );
+  }
+
+  void setTab(int tab) {
+    widget.onTabChanged(tab);
+    _setSelected(widget.tabs[tab].key);
+    _initAnimationAndStart(_circleAlignX, 1);
+    setState(() => _currentSelected = tab);
+  }
+
+  void setSelectable(bool selectable) {
+    _selectable = selectable;
+  }
+
+  void _setSelected(UniqueKey key) {
+    int selected = widget.tabs.indexWhere((tabData) => tabData.key == key);
+
+    if(mounted) {
+      setState(() {
+        _currentSelected = selected;
+        _nextIcon = widget.tabs[selected].iconData;
+        _circleAlignX = -1 + (2 / (widget.tabs.length - 1) * selected);
+      });
+    }
+  }
+
+  void _initAnimationAndStart(double from, double to) {
     _circleIconAlpha = 0;
 
-    Future.delayed(Duration(milliseconds: ANIM_DURATION ~/ 5), () {
-      setState(() {
-        activeIcon = nextIcon;
-      });
-    }).then((_) {
-      Future.delayed(Duration(milliseconds: (ANIM_DURATION ~/ 5 * 3)), () {
-        setState(() {
-          _circleIconAlpha = 1;
-        });
-      });
+    Future.delayed(Duration(milliseconds: ANIM_DURATION ~/ 5), () => setState(() => _activeIcon = _nextIcon)).then((_) {
+      Future.delayed(Duration(milliseconds: (ANIM_DURATION ~/ 5 * 3)), () => setState(() => _circleIconAlpha = 1));
     });
   }
 
-  void setPage(int page) {
-    widget.onTabChangedListener(page);
-    _setSelected(widget.tabs[page].key);
-    _initAnimationAndStart(_circleAlignX, 1);
-
-    setState(() {
-      currentSelected = page;
-    });
+  void _handleTabItemPressed(UniqueKey key) {
+    if(_selectable) {
+      int page = widget.tabs.indexWhere((tabData) => tabData.key == key);
+      widget.onTabChanged(page);
+      _setSelected(key);
+      _initAnimationAndStart(_circleAlignX, 1);
+    }
   }
-}
-
-class TabData {
-  TabData({@required this.iconData, @required this.title, this.onclick});
-
-  IconData iconData;
-  String title;
-  Function onclick;
-  final UniqueKey key = UniqueKey();
 }

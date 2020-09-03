@@ -44,21 +44,21 @@ class _MyHomePageState extends State<MyHomePage> {
           TabData(
               iconData: Icons.home,
               title: "Home",
-              onclick: () {
+              onClick: () {
                 final FancyBottomNavigationState fState =
                     bottomNavigationKey.currentState;
-                fState.setPage(2);
+                fState.setTab(2);
               }),
           TabData(
               iconData: Icons.search,
               title: "Search",
-              onclick: () => Navigator.of(context)
+              onClick: () => Navigator.of(context)
                   .push(MaterialPageRoute(builder: (context) => SecondPage()))),
           TabData(iconData: Icons.shopping_cart, title: "Basket")
         ],
         initialSelection: 1,
         key: bottomNavigationKey,
-        onTabChangedListener: (position) {
+        onTabChanged: (position) {
           setState(() {
             currentPage = position;
           });
@@ -99,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 final FancyBottomNavigationState fState =
                     bottomNavigationKey.currentState;
-                fState.setPage(2);
+                fState.setTab(2);
               },
             )
           ],
