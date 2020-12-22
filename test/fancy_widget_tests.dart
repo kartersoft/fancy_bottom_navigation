@@ -18,7 +18,7 @@ void main() {
         TabData(iconData: Icons.home, title: "Home"),
         TabData(iconData: Icons.search, title: "Search")
       ],
-      onTabChanged: (position) {},
+      onTabChanged: (position, args) {},
     );
 
     await tester.pumpWidget(makeTestableWidget(child: fn));
@@ -46,7 +46,7 @@ void main() {
         TabData(iconData: Icons.home, title: "Home"),
         TabData(iconData: Icons.search, title: "Search")
       ],
-      onTabChanged: (position) {},
+      onTabChanged: (position, args) {},
     );
 
     await tester.pumpWidget(makeTestableWidget(child: fn));

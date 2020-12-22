@@ -5,6 +5,8 @@ import 'package:fancy_bottom_navigation/paint/half_clipper.dart';
 import 'package:fancy_bottom_navigation/paint/half_painter.dart';
 import 'package:flutter/material.dart';
 
+typedef TabChangedCallback = void Function(int tab, Map<String, dynamic> args);
+
 class TabData {
   TabData({
     @required this.iconData, 
@@ -39,7 +41,7 @@ class FancyBottomNavigation extends StatefulWidget {
   }): assert(onTabChanged != null),
       assert(tabs != null);
 
-  final ValueChanged<int> onTabChanged;
+  final TabChangedCallback onTabChanged;
   final Color circleColor;
   final Color activeIconColor;
   final Color inactiveIconColor;
@@ -229,8 +231,8 @@ class FancyBottomNavigationState extends State<FancyBottomNavigation> with Ticke
     );
   }
 
-  void setTab(int tab) {
-    widget.onTabChanged(tab);
+  void setTab(int tab, {Map<String, dynamic> args = const {}}) {
+    widget.onTabChanged(tab, args);
     _setSelected(widget.tabs[tab].key);
     _initAnimationAndStart(_circleAlignX, 1);
     setState(() => _currentSelected = tab);
@@ -263,7 +265,7 @@ class FancyBottomNavigationState extends State<FancyBottomNavigation> with Ticke
   void _handleTabItemPressed(UniqueKey key) {
     if(_selectable) {
       int page = widget.tabs.indexWhere((tabData) => tabData.key == key);
-      widget.onTabChanged(page);
+      widget.onTabChanged(page, const {});
       _setSelected(key);
       _initAnimationAndStart(_circleAlignX, 1);
     }
