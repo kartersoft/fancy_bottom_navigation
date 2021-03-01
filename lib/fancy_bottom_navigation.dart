@@ -1,24 +1,23 @@
-library fancy_bottom_navigation;
-
-import 'package:fancy_bottom_navigation/internal/tab_item.dart';
-import 'package:fancy_bottom_navigation/paint/half_clipper.dart';
-import 'package:fancy_bottom_navigation/paint/half_painter.dart';
 import 'package:flutter/material.dart';
+
+import 'internal/tab_item.dart';
+import 'paint/half_clipper.dart';
+import 'paint/half_painter.dart';
 
 typedef TabChangedCallback = void Function(int tab, Map<String, dynamic> args);
 
 class TabData {
   TabData({
-    @required this.iconData, 
+    Key key,
     @required this.title, 
+    @required this.iconData, 
     this.onClick
-  });
+  }): key = key ?? UniqueKey();
 
-  final UniqueKey key = UniqueKey();
-
-  IconData iconData;
-  String title;
-  Function onClick;
+  final Key key;
+  final String title;
+  final IconData iconData;
+  final Function onClick;
 }
 
 class FancyBottomNavigation extends StatefulWidget {
