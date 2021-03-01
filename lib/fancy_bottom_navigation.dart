@@ -241,7 +241,7 @@ class FancyBottomNavigationState extends State<FancyBottomNavigation> with Ticke
     _selectable = selectable;
   }
 
-  void _setSelected(UniqueKey key) {
+  void _setSelected(Key key) {
     int selected = widget.tabs.indexWhere((tabData) => tabData.key == key);
 
     if(mounted) {
@@ -261,7 +261,7 @@ class FancyBottomNavigationState extends State<FancyBottomNavigation> with Ticke
     });
   }
 
-  void _handleTabItemPressed(UniqueKey key) {
+  void _handleTabItemPressed(Key key) {
     if(_selectable) {
       int page = widget.tabs.indexWhere((tabData) => tabData.key == key);
       widget.onTabChanged(page, const {});
