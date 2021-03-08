@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math.dart';
 
 class HalfPainter extends CustomPainter {
-  HalfPainter(Color paintColor) {
-    this.arcPaint = Paint()..color = paintColor;
-  }
+  HalfPainter(Color paintColor):
+    arcPaint = Paint()..color = paintColor;
 
   Paint arcPaint;
 

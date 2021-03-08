@@ -8,22 +8,22 @@ typedef TabChangedCallback = void Function(int tab, Map<String, dynamic> args);
 
 class TabData {
   TabData({
-    Key key,
-    @required this.title, 
-    @required this.iconData, 
+    Key? key,
+    required this.title, 
+    required this.iconData, 
     this.onClick
   }): key = key ?? UniqueKey();
 
   final Key key;
   final String title;
   final IconData iconData;
-  final Function onClick;
+  final VoidCallback? onClick;
 }
 
 class FancyBottomNavigation extends StatefulWidget {
   FancyBottomNavigation({
-    @required this.tabs,
-    @required this.onTabChanged,
+    required this.tabs,
+    required this.onTabChanged,
     this.key,
     this.initialSelection = 0,
     this.circleSize = 60,
@@ -37,15 +37,14 @@ class FancyBottomNavigation extends StatefulWidget {
     this.inactiveIconColor,
     this.textColor,
     this.barBackgroundColor
-  }): assert(onTabChanged != null),
-      assert(tabs != null);
+  });
 
   final TabChangedCallback onTabChanged;
-  final Color circleColor;
-  final Color activeIconColor;
-  final Color inactiveIconColor;
-  final Color textColor;
-  final Color barBackgroundColor;
+  final Color? circleColor;
+  final Color? activeIconColor;
+  final Color? inactiveIconColor;
+  final Color? textColor;
+  final Color? barBackgroundColor;
   final List<TabData> tabs;
   final int initialSelection;
   final double circleSize;
@@ -55,21 +54,22 @@ class FancyBottomNavigation extends StatefulWidget {
   final double shadowAllowance;
   final double barHeight;
 
-  final Key key;
+  final Key? key;
 
   @override
   FancyBottomNavigationState createState() => FancyBottomNavigationState();
 }
 
 class FancyBottomNavigationState extends State<FancyBottomNavigation> with TickerProviderStateMixin, RouteAware {
+  late Color _circleColor;
+  late Color _activeIconColor;
+  late Color _inactiveIconColor;
+  late Color _barBackgroundColor;
+  late Color _textColor;
+
   IconData _nextIcon = Icons.search;
   IconData _activeIcon = Icons.search;
   int _currentSelected = 0;
-  Color _circleColor;
-  Color _activeIconColor;
-  Color _inactiveIconColor;
-  Color _barBackgroundColor;
-  Color _textColor;
   double _circleAlignX = 0;
   double _circleIconAlpha = 1;
   bool _selectable = true;
@@ -84,29 +84,29 @@ class FancyBottomNavigationState extends State<FancyBottomNavigation> with Ticke
         ? (Theme.of(context).brightness == Brightness.dark)
             ? Colors.white
             : Theme.of(context).primaryColor
-        : widget.circleColor;
+        : widget.circleColor!;
 
     _activeIconColor = (widget.activeIconColor == null)
         ? (Theme.of(context).brightness == Brightness.dark)
             ? Colors.black54
             : Colors.white
-        : widget.activeIconColor;
+        : widget.activeIconColor!;
 
     _barBackgroundColor = (widget.barBackgroundColor == null)
         ? (Theme.of(context).brightness == Brightness.dark)
             ? Color(0xFF212121)
             : Colors.white
-        : widget.barBackgroundColor;
+        : widget.barBackgroundColor!;
     _textColor = (widget.textColor == null)
         ? (Theme.of(context).brightness == Brightness.dark)
             ? Colors.white
             : Colors.black54
-        : widget.textColor;
+        : widget.textColor!;
     _inactiveIconColor = (widget.inactiveIconColor == null)
         ? (Theme.of(context).brightness == Brightness.dark)
             ? Colors.white
             : Theme.of(context).primaryColor
-        : widget.inactiveIconColor;
+        : widget.inactiveIconColor!;
   }
 
   @override
