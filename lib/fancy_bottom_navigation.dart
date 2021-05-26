@@ -61,11 +61,11 @@ class FancyBottomNavigation extends StatefulWidget {
 }
 
 class FancyBottomNavigationState extends State<FancyBottomNavigation> with TickerProviderStateMixin, RouteAware {
-  late final Color _textColor;
-  late final Color _circleColor;
-  late final Color _activeIconColor;
-  late final Color _inactiveIconColor;
-  late final Color _barBackgroundColor;
+  late Color _textColor;
+  late Color _circleColor;
+  late Color _activeIconColor;
+  late Color _inactiveIconColor;
+  late Color _barBackgroundColor;
 
   IconData _nextIcon = Icons.search;
   IconData _activeIcon = Icons.search;
@@ -73,6 +73,12 @@ class FancyBottomNavigationState extends State<FancyBottomNavigation> with Ticke
   double _circleAlignX = 0;
   double _circleIconAlpha = 1;
   bool _selectable = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _setSelected(widget.tabs[widget.initialSelection].key);
+  }
 
   @override
   void didChangeDependencies() {
@@ -88,12 +94,6 @@ class FancyBottomNavigationState extends State<FancyBottomNavigation> with Ticke
     _barBackgroundColor = widget.barBackgroundColor ?? (isDarkMode ? Color(0xFF212121) : Colors.white);
     _textColor = widget.textColor ?? (isDarkMode ? Colors.white : Colors.black54);
     _inactiveIconColor = widget.inactiveIconColor ?? (isDarkMode ? Colors.white : primaryColor);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _setSelected(widget.tabs[widget.initialSelection].key);
   }
 
   @override
