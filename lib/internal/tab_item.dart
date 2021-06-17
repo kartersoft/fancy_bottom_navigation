@@ -11,13 +11,13 @@ const int ANIM_DURATION = 300;
 
 class TabItem extends StatelessWidget {
   TabItem({
-    @required Key key,
-    @required this.selected,
-    @required this.iconData,
-    @required this.title,
-    @required this.onPressed,
-    @required this.textColor,
-    @required this.iconColor
+    required Key key,
+    required this.selected,
+    required this.iconData,
+    required this.title,
+    required this.onPressed,
+    required this.textColor,
+    required this.iconColor
   }): super(key: key);
 
   final String title;
@@ -77,7 +77,7 @@ class TabItem extends StatelessWidget {
                     iconData,
                     color: iconColor,
                   ),
-                  onPressed: () => onPressed?.call(key),
+                  onPressed: () => onPressed.call(key!),
                 ),
               ),
             ),
